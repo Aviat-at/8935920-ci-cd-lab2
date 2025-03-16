@@ -1,38 +1,347 @@
+/* ----------------------------
+  GLOBAL STYLES
+---------------------------- */
 .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: sans-serif;
+  background-color: #f4f4f4;
+  color: #111;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark mode overrides */
+.App.dark {
+  background-color: #1a202c; /* Dark gray background */
+  color: #e2e8f0;            /* Light text color */
+}
+
+/* Utility container for consistent max width */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Error message styling */
+.error-message {
   text-align: center;
+  color: red;
+  font-size: 1.1rem;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Centered spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* No articles text */
+.no-articles {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* ----------------------------
+  NAVBAR
+---------------------------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #fff;
+  border-bottom: 1px solid #e2e2e2;
+  transition: background-color 0.3s;
+}
+
+.App.dark .navbar {
+  background-color: #2d3748; /* Dark background */
+  border-color: #4a5568;     /* Dark border */
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.branding {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.brand-name {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links li a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+  color: #3182ce; /* Light blue hover */
+}
+
+/* Hide nav links on small screens */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Icon styling within MUI button */
+.icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ----------------------------
+  HERO SECTION
+---------------------------- */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 23vh; /* You can adjust this */
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* Example background image (set inline in JS):
+     background-image: url('...') 
+  */
+}
+
+/* Dark overlay to dim the background image */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  max-width: 600px;
+}
+
+.hero-content h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-search {
+  max-width: 400px;
+}
+
+/* Dark mode hero text color override */
+.App.dark .hero-content {
+  color: #f7fafc;
+}
+
+/* ----------------------------
+  MAIN CONTENT
+---------------------------- */
+.main-content {
+  flex: 1;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Basic section container for headings, etc. */
+.section {
+  margin-bottom: 4rem;
+}
+
+.section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+/* ----------------------------
+  GRID (Latest News)
+---------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ----------------------------
+  CARD
+---------------------------- */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.App.dark .card {
+  background-color: #2d3748; /* Dark mode card background */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.card-img {
+  width: 100%;
+  height: 200px; /* adjust the fixed height as you wish */
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-body h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.card-body p {
+  flex: 1;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.App.dark .card-body p {
+  color: #cbd5e0; /* lighter text in dark mode */
+}
+
+.card-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: #3182ce; /* same light blue as hover in nav */
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+/* ----------------------------
+  ABOUT SECTION
+---------------------------- */
+.about-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.about-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.about-text p {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.App.dark .about-text p {
+  color: #cbd5e0; 
+}
+
+@media (min-width: 768px) {
+  .about-content {
+    flex-direction: row;
+  }
+  .about-img {
+    flex: 1;
+    max-width: 50%;
+  }
+  .about-text {
+    flex: 1;
+  }
+}
+
+/* ----------------------------
+  FOOTER
+---------------------------- */
+.footer {
+  background-color: #fff;
+  border-top: 1px solid #e2e2e2;
+  padding: 1rem 0;
+  transition: background-color 0.3s;
+}
+
+.App.dark .footer {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+.footer-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
 }
 
-.App-link {
-  color: #61dafb;
+.footer-brand {
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.footer-social {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Make footer layout row on larger screens */
+@media (min-width: 768px) {
+  .footer-content {
+    flex-direction: row;
   }
-  to {
-    transform: rotate(360deg);
+  .footer-brand {
+    margin-bottom: 0;
   }
 }
