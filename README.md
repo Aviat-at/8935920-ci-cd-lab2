@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# React NewsApp CI/CD Pipeline
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+This project automates the deployment of a React NewsApp using:
+- **Jenkins** for CI/CD
+- **GitHub** for version control
+- **Docker Hub** for container storage
+- **Azure Kubernetes Service (AKS)** for deployment
 
-## Available Scripts
+## Workflow
+1. Code is pushed to **GitHub** → Jenkins starts the build.
+2. Jenkins pulls the code, installs dependencies, and runs tests.
+3. If tests pass, Jenkins builds and pushes a Docker image to **Docker Hub**.
+4. Jenkins deploys the app to **AKS**.
+5. The app is accessible via **LoadBalancer**.
 
-In the project directory, you can run:
+## Setup
+### 1. Configure Jenkins
+- Install Jenkins and required plugins.
+- Add **GitHub PAT** and **Docker Hub Credentials** to Jenkins.
+- Enable **master node** for builds.
 
-### `npm start`
+### 2. Create `Jenkinsfile`
+```groovy
+pipeline {
+    agent { label 'master' }
+    environment {
+        DOCKER_IMAGE = "your-dockerhub-username/newsapp:latest"
+        KUBE_CONFIG_PATH = "/root/.kube/config"
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-username/newsapp.git', credentialsId: 'github-pat'
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'npm test -- --watchAll=false'
+            }
+        }
+        stage('Build & Push Docker Image') {
+            steps {
+                sh 'docker build -t ${DOCKER_IMAGE} .'
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: '']) {
+                    sh 'docker push ${DOCKER_IMAGE}'
+                }
+            }
+        }
+        stage('Deploy to AKS') {
+            steps {
+                sh 'kubectl apply -f k8s/deployment.yaml --kubeconfig=${KUBE_CONFIG_PATH}'
+            }
+        }
+    }
+}
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 3. Create `k8s/deployment.yaml`
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newsapp-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: newsapp
+  template:
+    metadata:
+      labels:
+        app: newsapp
+    spec:
+      containers:
+      - name: newsapp
+        image: your-dockerhub-username/newsapp:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: newsapp-service
+spec:
+  selector:
+    app: newsapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 4. Deploy to Kubernetes
+Run:
+```sh
+kubectl apply -f k8s/deployment.yaml
+kubectl get svc newsapp-service
+```
 
-### `npm test`
+### 5. Verify CI/CD Pipeline
+- Push changes to GitHub.
+- Jenkins should automatically build, test, push, and deploy the app.
+- Check deployment using:
+  ```sh
+  kubectl get pods
+  kubectl get svc
+  ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Summary
+Fully automated CI/CD pipeline with Jenkins, GitHub, Docker, and AKS.
+Auto-build, test, and deployment on every Git push.
+Scalable React app running in AKS.
+Project is now fully automated!**
