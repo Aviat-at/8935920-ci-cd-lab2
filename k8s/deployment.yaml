@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newsapp-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: newsapp
+  template:
+    metadata:
+      labels:
+        app: newsapp
+    spec:
+      containers:
+      - name: newsapp
+        image: your-dockerhub-username/newsapp:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: newsapp-service
+spec:
+  selector:
+    app: newsapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

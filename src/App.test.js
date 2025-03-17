@@ -22,5 +22,5 @@ describe("App Component (Real API)", () => {
     // 4) Check for the "Read More" text which appears in each article card
     const readMoreLinks = screen.queryAllByText(/read more/i);
     expect(readMoreLinks.length).toBeGreaterThan(0);
-  });
+  });       
 });
