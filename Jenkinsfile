@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-username/newsapp.git', credentialsId: 'github-pat'
+                git branch: 'main', url: 'https://github.com/Aviat-at/8935920-ci-cd-lab2', credentialsId: 'github-pat'
             }
         }
 
