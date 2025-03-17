@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'master' }  // Force pipeline to run on the master node
 
     environment {
         DOCKER_IMAGE = "your-dockerhub-username/newsapp:latest"
@@ -9,13 +9,19 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/Aviat-at/8935920-ci-cd-lab2', credentialsId: 'github-pat'
+                git branch: 'main', url: 'https://github.com/your-username/newsapp.git', credentialsId: 'github-pat'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Node.js & Dependencies') {
             steps {
-                sh "npm install"
+                sh '''
+                curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                apt-get install -y nodejs
+                node -v
+                npm -v
+                npm install
+                '''
             }
         }
 
